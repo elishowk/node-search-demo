@@ -1,0 +1,81 @@
+version: '3'
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELK_VERSION:-7.12.1}
+    environment:
+      - node.name=elasticsearch
+      - bootstrap.memory_lock=true
+      - discovery.type=single-node
+      - 'ES_JAVA_OPTS=-Xms1g -Xmx1g'
+      - cluster.routing.allocation.disk.threshold_enabled=false
+      - ELASTIC_PASSWORD=password
+      - xpack.security.enabled=false
+      - xpack.security.authc.api_key.enabled=true
+      - xpack.license.self_generated.type=trial
+      - http.cors.enabled=true
+      - http.cors.allow-origin=*
+      - http.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization
+      - http.cors.allow-credentials=true
+      - logger.level=WARN
+    ports:
+      - 9200:9200
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
+  enterprisesearch:
+    image: docker.elastic.co/enterprise-search/enterprise-search:${ELK_VERSION:-7.12.1}
+    environment:
+      - ent_search.auth.source=standard
+      - elasticsearch.username=elastic
+      - elasticsearch.password=${ELASTIC_PASSWORD:-test}
+      - elasticsearch.host=http://elasticsearch:9200
+      - allow_es_settings_modification=true
+      - secret_management.encryption_keys=[iwantabadpasswrod]
+      - secret_session_key=35c258cec958d3224bab73409f74fffcf0559311fa0a74179119ddecaf557255d11f57fd23b5bf08e9f2bde86cd63db14c8cce7c58e4008713c07438ec0f1ade
+      - ENT_SEARCH_DEFAULT_PASSWORD=${ELASTIC_PASSWORD:-iwantabadpasswrod}
+    ports:
+      - 3002:3002
+    links:
+      - elasticsearch
+    depends_on:
+      - elasticsearch
+
+  front:
+    container_name: front
+    image: node:14-buster-slim
+    command: yarn start
+    working_dir: /app/front
+    depends_on:
+      - enterprisesearch
+    volumes:
+      - .:/app:cached
+    ports:
+      - 3000:3000
+    environment:
+      - NODE_ENV=development
+      - ENTERPRISE_SEARCH_URL=http://enterprisesearch:3002
+
+  back:
+    container_name: back
+    image: node:14-buster-slim
+    command: yarn dev
+    working_dir: /app/back
+    depends_on:
+      - enterprisesearch
+    volumes:
+      - .:/app:cached
+    ports:
+      - 4000:4000
+    environment:
+      - NODE_ENV=development
+      - ENTERPRISE_SEARCH_URL=http://enterprisesearch:3002
+
+# You need to create a custom bridge network for docker with this command
+# docker network create --driver=bridge --attachable --internal=false default-bridge-network
+networks:
+  default:
+    external:
+      name: default-bridge-network

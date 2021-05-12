@@ -1,0 +1,68 @@
+{
+  "name": "back",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Beta Git repository watcher and indexation",
+  "main": "dist/src/index",
+  "keywords": [],
+  "types": "dist/index",
+  "files": [
+    "dist"
+  ],
+  "author": "Elias Showk",
+  "license": "MIT",
+  "scripts": {
+    "compile": "tsc -b tsconfig.json",
+    "watch-ts": "TSC_WATCHDIRECTORY=src tsc -b tsconfig.json -w --preserveWatchOutput --pretty",
+    "serve": "node --enable-source-maps --no-lazy ./dist/src/index.js",
+    "nodemon": "nodemon --watch ./dist --watch ./config",
+    "predev": "yarn install",
+    "dev": "concurrently -k -p \"[{name}]\" -n \"TS,Koa\" -c \"yellow.bold,cyan.bold,green.bold\" \"yarn watch-ts\" \"yarn nodemon\"",
+    "test": "yarn run compile && yarn run test-coverage",
+    "test-coverage": "jest --coverage --verbose --runInBand --detectOpenHandles --forceExit",
+    "test-only": "jest --verbose --runInBand --detectOpenHandles --forceExit",
+    "test-watch": "jest --verbose --runInBand --detectOpenHandles --forceExit --watch",
+    "test-debug": "node --inspect=0.0.0.0:9244 node_modules/.bin/jest --runInBand --detectOpenHandles --verbose"
+  },
+  "dependencies": {
+    "@elastic/app-search-node": "^7.12.0",
+    "@koa/cors": "^3.1.0",
+    "@types/koa": "^2.13.1",
+    "axios": "^0.21.1",
+    "bluebird": "^3.7.2",
+    "config": "^3.3.6",
+    "dotenv": "^9.0.2",
+    "koa": "^2.13.1",
+    "koa-bodyparser": "^4.3.0",
+    "koa-helmet": "^6.1.0",
+    "koa-json": "^2.0.2",
+    "koa-router": "^10.0.0",
+    "nodemon": "^2.0.7",
+    "pino": "^6.11.3",
+    "simple-git": "^2.38.1"
+  },
+  "devDependencies": {
+    "@types/axios": "^0.14.0",
+    "@types/bluebird": "^3.5.34",
+    "@types/config": "^0.0.38",
+    "@types/jest": "^26.0.23",
+    "@types/koa-bodyparser": "^4.3.0",
+    "@types/koa-json": "^2.0.18",
+    "@types/koa-router": "^7.4.2",
+    "@types/koa__cors": "^3.0.2",
+    "@types/pino": "^6.3.8",
+    "concurrently": "^6.1.0",
+    "jest": "^26.6.3",
+    "ts-jest": "^26.5.6",
+    "typescript": "^4.2.4"
+  },
+  "nodemonConfig": {
+    "exec": "yarn serve",
+    "ignore": [
+      "node_modules/*",
+      "tests/*",
+      "src/*"
+    ],
+    "delay": "1000"
+  }
+}
