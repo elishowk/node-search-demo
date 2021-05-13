@@ -1,7 +1,7 @@
 import React from 'react';
 
 import AppSearchAPIConnector from '@elastic/search-ui-app-search-connector';
-import { SearchProvider, Results, SearchBox, Paging, PagingInfo, Sorting } from '@elastic/react-search-ui';
+import { SearchProvider, Results, SearchBox, Paging, PagingInfo, Sorting, Facet } from '@elastic/react-search-ui';
 import { Layout } from '@elastic/react-search-ui-views';
 
 import '@elastic/react-search-ui-views/lib/styles/styles.css';
@@ -14,6 +14,19 @@ const connector = new AppSearchAPIConnector({
   cacheResponses: false
 });
 
+const SORT_OPTIONS = [
+  {
+    name: "Relevance",
+    value: "",
+    direction: ""
+  },
+  {
+    name: "Title",
+    value: "title",
+    direction: "asc"
+  }
+];
+
 function App() {
   return (
     <SearchProvider
@@ -24,30 +37,34 @@ function App() {
           searchResults: ({ start, end, totalResults, searchTerm }: { start: number, end: number, totalResults: number, searchTerm: string }) =>
             `Searching for "${searchTerm}". Showing ${start} to ${end} results out of ${totalResults}.`
         },
-        result_fields: {
-          title: {
-            snippet: {
-              size: 100,
-              fallback: true
-            }
-          },
-          nps_link: {
-            raw: {}
-          },
-          body: {
-            snippet: {
-              size: 100,
-              fallback: true
-            }
+        alwaysSearchOnInitialLoad: true,
+        searchQuery: {
+          disjunctiveFacets: ["pipeline_tag "],
+          facets: {
+            pipeline_tag : { type: "value", size: 30 }
           }
-        },
-        alwaysSearchOnInitialLoad: true
+        }
       }}
     >
       <div className='App'>
         <Layout
+          sideContent={
+            <div>
+              <Sorting
+                sortOptions={SORT_OPTIONS}
+              />
+              <Facet
+                field="pipeline_tag"
+                label="pipeline_tag"
+                filterType="any"
+                isFilterable={true}
+              />
+              </div>
+          }
           header={<SearchBox
+            autocompleteMinimumCharacters={3}
             autocompleteResults={{
+              linkTarget: "_blank",
               sectionTitle: "Suggested Results",
               titleField: "title",
               urlField: "nps_link"
@@ -56,20 +73,7 @@ function App() {
               sectionTitle: "Suggested Queries"
             }}
           />}
-          bodyHeader={[<PagingInfo/>, <Sorting
-            sortOptions={[
-              {
-                name: "Relevance",
-                value: "",
-                direction: ""
-              },
-              {
-                name: "Title",
-                value: "title",
-                direction: "asc"
-              }
-            ]}
-          />]}
+          bodyHeader={<PagingInfo/>}
           bodyContent={<Results titleField='title' urlField='nps_link' />}
           bodyFooter={<Paging/>}
         />
