@@ -2,14 +2,15 @@
 
 # Usage
 
-- `docker-compose up enterprisesearch`
-- go to http://localhost:3002 and follow the onboarding by creating an engine name, use model-search-demo by default
-- copy auto-generated keys or create AppSearch api keys : one public for the front, one private for the back : go to http://localhost:3002/as#/credentials
-- edit the .env file with environment variables for REACT_APP_ENTERPRISE_SEARCH_PUBLIC_KEY and ENTERPRISE_SEARCH_PRIVATE_KEY. Set also ENTERPRISE_SEARCH_INDEx of you used another name than model-search-demo
-- in another terminal, start front and back with `docker-compose up`
-- indexation will immediately start, wait a bit for results to appear
-- go to http://localhost:3000
-- you can also check the search engine at http://localhost:3002/as#/engines/model-search-demo/documents/
+- Create the bridge network : `docker network create --driver=bridge --attachable --internal=false default-bridge-network`
+- Start Elastic EnterpriseSearch for initial configuration : `docker-compose up enterprisesearch`
+- Go to http://localhost:3002 and follow the onboarding by creating an engine name, use `model-search-demo` by default
+- Copy the auto-generated keys : one public for the front, one private for the back, go to http://localhost:3002/as#/credentials
+- Edit the .env file with environment variables for REACT_APP_ENTERPRISE_SEARCH_PUBLIC_KEY and ENTERPRISE_SEARCH_PRIVATE_KEY. Set also ENTERPRISE_SEARCH_INDEx of you used another name than model-search-demo
+- Start the front and back with `docker-compose up` 
+- Indexation will immediately start, wait a bit for results to appear
+- Go to http://localhost:3000
+- You can also check the search engine at http://localhost:3002/as#/engines/model-search-demo/documents/
 
 # Data Backend
 
