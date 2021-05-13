@@ -1,5 +1,11 @@
 version: '3'
 
+volumes:
+  enterprisevar:
+  enterpriseusr:
+  elasticdata:
+  elasticlogs:
+
 services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:${ELK_VERSION:-7.12.1}
@@ -18,6 +24,9 @@ services:
       - http.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization
       - http.cors.allow-credentials=true
       - logger.level=WARN
+    volumes:
+      - elasticlogs:/usr/share/elasticsearch/logs/
+      - elasticdata:/usr/share/elasticsearch/data/
     ports:
       - 9200:9200
     ulimits:
@@ -36,6 +45,10 @@ services:
       - secret_management.encryption_keys=[iwantabadpasswrod]
       - secret_session_key=35c258cec958d3224bab73409f74fffcf0559311fa0a74179119ddecaf557255d11f57fd23b5bf08e9f2bde86cd63db14c8cce7c58e4008713c07438ec0f1ade
       - ENT_SEARCH_DEFAULT_PASSWORD=${ELASTIC_PASSWORD:-iwantabadpasswrod}
+      - log_level=warn
+    volumes:
+      - enterprisevar:/var
+      - enterpriseusr:/usr
     ports:
       - 3002:3002
     links:
@@ -56,7 +69,9 @@ services:
       - 3000:3000
     environment:
       - NODE_ENV=development
-      - ENTERPRISE_SEARCH_URL=http://enterprisesearch:3002
+      - REACT_APP_ENTERPRISE_SEARCH_URL=http://localhost:3002
+      - REACT_APP_ENTERPRISE_SEARCH_INDEX=${REACT_APP_ENTERPRISE_SEARCH_INDEX:-model-search-demo}
+      - REACT_APP_ENTERPRISE_SEARCH_PUBLIC_KEY=${REACT_APP_ENTERPRISE_SEARCH_PUBLIC_KEY}
 
   back:
     container_name: back
@@ -71,7 +86,9 @@ services:
       - 4000:4000
     environment:
       - NODE_ENV=development
-      - ENTERPRISE_SEARCH_URL=http://enterprisesearch:3002
+      - ENTERPRISE_SEARCH_URL=http://enterprisesearch:3002/api/as/v1/
+      - ENTERPRISE_SEARCH_INDEX=${ENTERPRISE_SEARCH_INDEX:-model-search-demo}
+      - ENTERPRISE_SEARCH_PRIVATE_KEY=${ENTERPRISE_SEARCH_PRIVATE_KEY}
 
 # You need to create a custom bridge network for docker with this command
 # docker network create --driver=bridge --attachable --internal=false default-bridge-network

@@ -12,15 +12,12 @@ module.exports = {
   },
   firewallAuthorizedHosts: process.env.FIREWALL_AUTHORIZED_HOSTS || '^localhost,',
   appSearch: {
-    baseUrlFn: () => `${process.env.ENTERPRISE_SEARCH_URL}/api/as/v1/`,
-    engineName: 'model-search-demo',
-    apiKey: 'eEFUWG9JNmRqeWdoM1R2dnZlRkp0cFl0dlZwemp3ditPM3ZGNjNUYXlmd3FkNm9SQzdLUmlqWnlvcENodXVXNi0tQkI4WDg2ajNwdHZXNGJ4WmNjUmdrQT09--033c1f0bf5cb93b76e209e254c6310057a18cd27'
+    baseUrlFn: () => process.env.ENTERPRISE_SEARCH_URL || 'http://localhost:3002',
+    engineName: process.env.ENTERPRISE_SEARCH_INDEX || 'model-search-demo',
+    apiKey: process.env.ENTERPRISE_SEARCH_PRIVATE_KEY
   },
   git: {
-    baseDir: '/tmp',
-    maxConcurrentProcesses: 6,
-    binary: '/usr/bin/git',
-    baseUrl: 'https://huggingface.co/'
+    repoUrl: 'https://huggingface.co/'
   },
   modelsUrl: 'https://huggingface.co/api/models'
 }
