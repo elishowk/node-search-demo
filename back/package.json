@@ -14,9 +14,9 @@
   "scripts": {
     "compile": "tsc -b tsconfig.json",
     "watch-ts": "TSC_WATCHDIRECTORY=src tsc -b tsconfig.json -w --preserveWatchOutput --pretty",
+    "preserve": "yarn install && yarn compile",
     "serve": "node --inspect=0.0.0.0:9898 --enable-source-maps --no-lazy ./dist/src/index.js",
     "nodemon": "nodemon --watch ./dist --watch ./config",
-    "predev": "yarn install",
     "dev": "concurrently -k -p \"[{name}]\" -n \"TS,Koa\" -c \"yellow.bold,cyan.bold\" \"yarn watch-ts\" \"yarn nodemon\"",
     "test": "yarn run compile && yarn run test-coverage",
     "test-coverage": "jest --coverage --verbose --runInBand --detectOpenHandles --forceExit",
